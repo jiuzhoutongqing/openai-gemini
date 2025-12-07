@@ -1,0 +1,27 @@
+name: 自动同步上游仓库
+
+on:
+  schedule:
+    - cron: '0 0 * * *'    # 每天 UTC 00:00（北京时间早上 8 点）
+  workflow_dispatch:       # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 同步上游最新代码
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/PublicAffairs/openai-gemini.git || true
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --ff-only || {
+            echo "⚠️ 有合并冲突，自动同步停止，请手动处理"
+            exit 1
+          }
+          git push origin main
