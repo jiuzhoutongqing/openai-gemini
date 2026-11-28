@@ -467,11 +467,11 @@ const transformMessages = async (messages) => {
       case "tool":
         // eslint-disable-next-line no-case-declarations
         let { role, parts } = contents[contents.length - 1] ?? {};
-        if (role !== "function") {
+        if (role !== "user" || !parts?.calls) {
           const calls = parts?.calls;
           parts = []; parts.calls = calls;
           contents.push({
-            role: "function", // ignored
+            role: "user",
             parts
           });
         }
